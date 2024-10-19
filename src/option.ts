@@ -1,10 +1,8 @@
 export type Option<T> = { kind: "some"; value: T } | { kind: "none" };
 
-const some = <T>(value: T): Option<T> => ({ kind: "some", value });
+export const some = <T>(value: T): Option<T> => ({ kind: "some", value });
 
-const none = <T>(): Option<T> => ({ kind: "none" });
-
-export const Option = { some, none };
+export const none = <T>(): Option<T> => ({ kind: "none" });
 
 export const isSome = <T>(option: Option<T>): option is { kind: "some"; value: T } =>
   option.kind === "some";
@@ -52,8 +50,8 @@ export function* pick<A>(option: Option<A>) {
   return (yield option) as A;
 }
 
-export function option<A>(gen: (some: <T>(t: T) => Generator<any, T, T>, none: <F>() => Generator<any, F, F>) => Generator<any, A, never>): Option<A> {
-  const g: Generator<any, any, any> = gen((v) => pick(some(v)), () => pick(none()));
+export function option<A>(gen: (_: <T>(_: Option<T>) => Generator<any, T, T>) => Generator<any, A, never>): Option<A> {
+  const g: Generator<any, any, any> = gen((v) => pick(v));
   let r = g.next();
   let o: any;
 

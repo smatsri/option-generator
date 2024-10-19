@@ -1,14 +1,14 @@
-import { option, toValue } from "./option";
+import { option, toValue, map, none, some } from "./option";
 
-const result = option(function* (some, none) {
-  let d = yield* some(1)
-  let a = yield* some(1);
-  let b = yield* some("123");
-  //let c = yield* none<string>();
+const result = option(function* (_) {
+  let d = yield* _(some(1));
+  let a = yield* _(some(1));
+  let b = yield* _(some("123"));
+  let c = yield* _(none<string>());
   return "result " + b;
 });
 
-const value = toValue(result, "NA");
+const value = toValue(map(result, (x) => `result: ${x}`), "no result");
 console.log(value);
 
 
