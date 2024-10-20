@@ -1,4 +1,4 @@
-import { option, toValue, map, none, some, bind } from "./option";
+import { option, toValue, map, none, some } from "./option";
 import { pipe } from "./pipe";
 
 function div(a: number, b: number) {
