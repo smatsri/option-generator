@@ -24,25 +24,6 @@ export function toValue<T>(defaultValue: T, option?: Option<T>): T | ((option: O
   }
 }
 
-// export const toValue = <T>(defaultValue: T, option: Option<T>): T => {
-//   if (option.kind === "some") {
-//     return option.value;
-//   } else {
-//     return defaultValue;
-//   }
-// };
-
-// export const toValue2 = <T>(defaultValue: T): (option: Option<T>) => T => {
-//   return (option: Option<T>) => {
-//     if (option.kind === "some") {
-//       return option.value;
-//     } else {
-//       return defaultValue;
-//     }
-
-//   }
-// };
-
 export const bind = <T, U>(
   f: (value: T) => Option<U>,
   option: Option<T>,
@@ -53,24 +34,6 @@ export const bind = <T, U>(
     return none<U>();
   }
 };
-
-// export const map = <T, U>(f: (value: T) => U, option: Option<T>): Option<U> => {
-//   if (option.kind === "some") {
-//     return some(f(option.value));
-//   } else {
-//     return none<U>();
-//   }
-// };
-
-// export const map2 = <T, U>(f: (value: T) => U): (option: Option<T>) => Option<U> => {
-//   return (option: Option<T>) => {
-//     if (option.kind === "some") {
-//       return some(f(option.value));
-//     } else {
-//       return none<U>();
-//     }
-//   }
-// };
 
 export function map<T, U>(f: (value: T) => U, option: Option<T>): Option<U>;
 export function map<T, U>(f: (value: T) => U): (option: Option<T>) => Option<U>;
