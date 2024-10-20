@@ -10,17 +10,42 @@ export const isSome = <T>(option: Option<T>): option is { kind: "some"; value: T
 export const isNone = <T>(option: Option<T>): option is { kind: "none" } =>
   option.kind === "none";
 
-export const toValue = <T>(option: Option<T>, defaultValue: T): T => {
-  if (option.kind === "some") {
-    return option.value;
+export function toValue<T>(defaultValue: T, option: Option<T>): T;
+export function toValue<T>(defaultValue: T): (option: Option<T>) => T;
+export function toValue<T>(defaultValue: T, option?: Option<T>): T | ((option: Option<T>) => T) {
+  if (option) {
+    // If option is provided, return the value or default
+    return option.kind === "some" ? option.value : defaultValue;
   } else {
-    return defaultValue;
+    // If only the default value is provided, return a function that takes an option
+    return (option: Option<T>) => {
+      return option.kind === "some" ? option.value : defaultValue;
+    };
   }
-};
+}
+
+// export const toValue = <T>(defaultValue: T, option: Option<T>): T => {
+//   if (option.kind === "some") {
+//     return option.value;
+//   } else {
+//     return defaultValue;
+//   }
+// };
+
+// export const toValue2 = <T>(defaultValue: T): (option: Option<T>) => T => {
+//   return (option: Option<T>) => {
+//     if (option.kind === "some") {
+//       return option.value;
+//     } else {
+//       return defaultValue;
+//     }
+
+//   }
+// };
 
 export const bind = <T, U>(
+  f: (value: T) => Option<U>,
   option: Option<T>,
-  f: (value: T) => Option<U>
 ): Option<U> => {
   if (option.kind === "some") {
     return f(option.value);
@@ -29,13 +54,45 @@ export const bind = <T, U>(
   }
 };
 
-export const map = <T, U>(option: Option<T>, f: (value: T) => U): Option<U> => {
-  if (option.kind === "some") {
-    return some(f(option.value));
+// export const map = <T, U>(f: (value: T) => U, option: Option<T>): Option<U> => {
+//   if (option.kind === "some") {
+//     return some(f(option.value));
+//   } else {
+//     return none<U>();
+//   }
+// };
+
+// export const map2 = <T, U>(f: (value: T) => U): (option: Option<T>) => Option<U> => {
+//   return (option: Option<T>) => {
+//     if (option.kind === "some") {
+//       return some(f(option.value));
+//     } else {
+//       return none<U>();
+//     }
+//   }
+// };
+
+export function map<T, U>(f: (value: T) => U, option: Option<T>): Option<U>;
+export function map<T, U>(f: (value: T) => U): (option: Option<T>) => Option<U>;
+export function map<T, U>(f: (value: T) => U, option?: Option<T>): Option<U> | ((option: Option<T>) => Option<U>) {
+  if (option) {
+    // If option is provided, apply the function directly
+    if (option.kind === "some") {
+      return some(f(option.value));
+    } else {
+      return none<U>();
+    }
   } else {
-    return none<U>();
+    // If only the function is provided, return a function that accepts an option
+    return (option: Option<T>) => {
+      if (option.kind === "some") {
+        return some(f(option.value));
+      } else {
+        return none<U>();
+      }
+    };
   }
-};
+}
 
 
 const match = <T>(option: Option<T>, onSome: (value: T) => T, onNone: () => T) => {
@@ -46,7 +103,7 @@ const match = <T>(option: Option<T>, onSome: (value: T) => T, onNone: () => T) =
   }
 }
 
-export function* pick<A>(option: Option<A>) {
+function* pick<A>(option: Option<A>) {
   return (yield option) as A;
 }
 
@@ -59,12 +116,12 @@ export function option<A>(gen: (_: <T>(_: Option<T>) => Generator<any, T, T>) =>
     o = r.value;
     const [c, a] = match(o, (a) => ([true, a]), () => ([false, null as any]));
     if (!c) {
-      break;
+      return o;
     }
     r = g.next(a);
   }
 
-  return o;
+  return some(r.value);
 
 }
 
